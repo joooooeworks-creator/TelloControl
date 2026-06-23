@@ -200,53 +200,152 @@ while running:
     #描画
     screen.blit(frame_surface, (0, 0))
 
-    # HUD風オーバーレイ（戦闘機風）
-    # 右上にバッテリー
-    battery_text = font.render(f"BAT: {battery}%", True, (0, 255, 0))
-    screen.blit(battery_text, (width - battery_text.get_width() - 10, 10))
+    # ===== HUD =====
 
-    # 左上に高度、速度、Wi-Fi
-    height_text = small_font.render(f"ALT: {height}cm", True, (255, 255, 255))
-    screen.blit(height_text, (10, 10))
+    # バッテリー
+    battery_text = font.render(
+        f"BAT: {battery}%",
+        True,
+        (0,255,0)
+    )
 
-    speed_text = small_font.render(f"SPD: {speed:.1f}cm/s", True, (255, 255, 255))
-    screen.blit(speed_text, (10, 40))
+    screen.blit(
+        battery_text,
+        (
+            width - battery_text.get_width() - 10,
+            10
+        )
+    )
 
-    # Wi-Fi SNR の色分け
+    # 高度
+    height_text = small_font.render(
+        f"ALT: {height}cm",
+        True,
+        (255,255,255)
+    )
+
+    screen.blit(
+        height_text,
+        (10,10)
+    )
+
+    # 速度
+    speed_text = small_font.render(
+        f"SPD: {speed:.1f}cm/s",
+        True,
+        (255,255,255)
+    )
+
+    screen.blit(
+        speed_text,
+        (10,40)
+    )
+
+    # WiFi
     if wifi_snr > -60:
-        wifi_color = (0, 255, 0)  # 緑: 良好
+        wifi_color = (0,255,0)
     elif wifi_snr > -80:
-        wifi_color = (255, 255, 0)  # 黄: 普通
+        wifi_color = (255,255,0)
     else:
-        wifi_color = (255, 0, 0)  # 赤: 弱い
-    wifi_text = small_font.render(f"WIFI: {wifi_snr}dB", True, wifi_color)
-    screen.blit(wifi_text, (10, 70))
+        wifi_color = (255,0,0)
 
-    # 中央下に飛行状態
-    status = "FLYING" if is_flying else "LANDED"
-    status_color = (0, 255, 0) if is_flying else (255, 0, 0)
-    status_text = font.render(status, True, status_color)
-    screen.blit(status_text, (width // 2 - status_text.get_width() // 2, height - 50))
+    wifi_text = small_font.render(
+        f"WIFI: {wifi_snr}dB",
+        True,
+        wifi_color
+    )
 
-    pygame.display.update()
+    screen.blit(
+        wifi_text,
+        (10,70)
+    )
 
-    clock.tick(30)
-    hud_controls = [
-        "CONTROL",
-        "W/S  FWD/BACK",
-        "A/D  YAW",
-        "UP/DN ALT",
-        "LT/RT STRAFE",
-        "SPC TAKEOFF",
-        "BSP EMERG"
-        ]
+    # 飛行状態
+    status = (
+        "FLYING"
+        if is_flying
+        else "LANDED"
+    )
 
-    for i, text in enumerate(hud_controls):
+    status_color = (
+        (0,255,0)
+        if is_flying
+        else (255,0,0)
+    )
+
+    status_text = font.render(
+        status,
+        True,
+        status_color
+    )
+
+    screen.blit(
+        status_text,
+        (
+            width // 2
+            - status_text.get_width() // 2,
+            height - 50
+        )
+    )
+
+    # ===== CONTROL HUD =====
+
+    title = small_font.render(
+        "FLIGHT CONTROL",
+        True,
+        (0,255,0)
+    )
+
+    screen.blit(
+        title,
+        (
+            width - 190,
+            height - 145
+        )
+    )
+
+    controls = [
+        (
+            "W/S  FWD/BACK",
+            keys[pygame.K_w]
+            or keys[pygame.K_s]
+        ),
+
+        (
+            "A/D  YAW",
+            keys[pygame.K_a]
+            or keys[pygame.K_d]
+        ),
+
+        (
+            "UP/DN ALT",
+            keys[pygame.K_UP]
+            or keys[pygame.K_DOWN]
+        ),
+
+        (
+            "LT/RT STRAFE",
+            keys[pygame.K_LEFT]
+            or keys[pygame.K_RIGHT]
+        ),
+
+        (
+            "SPC TAKEOFF",
+            False
+        ),
+
+        (
+            "BSP EMERG",
+            False
+        )
+    ]
+
+    for i, (text, active) in enumerate(controls):
 
         color = (
             (0,255,0)
-            if i == 0
-            else (150,255,150)
+            if active
+            else (120,220,120)
         )
 
         surf = small_font.render(
@@ -258,30 +357,14 @@ while running:
         screen.blit(
             surf,
             (
-                width - 180,
-                height - 140 + i * 18
+                width - 190,
+                height - 120 + i * 18
             )
         )
 
-    controls = [
-        ("W/S  FWD/BACK",
-        keys[pygame.K_w] or keys[pygame.K_s]),
+    pygame.display.update()
 
-        ("A/D  YAW",
-        keys[pygame.K_a] or keys[pygame.K_d]),
-
-        ("UP/DN ALT",
-        keys[pygame.K_UP] or keys[pygame.K_DOWN]),
-
-        ("LT/RT STRAFE",
-        keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]),
-
-        ("SPC TAKEOFF",
-        False),
-
-        ("BSP EMERG",
-        False)
-    ]
+    clock.tick(30)
 
 #終了
 if is_flying:
